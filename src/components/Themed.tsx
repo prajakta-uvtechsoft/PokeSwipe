@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 
+// Simple wrapper around View that automatically picks up the current background colour.
 export function ThemedView(props: PropsWithChildren<RNViewProps>) {
   const { theme } = useTheme();
 
@@ -27,6 +28,7 @@ type TextProps = RNTextProps & {
   variant?: 'title' | 'subtitle' | 'body' | 'caption';
 };
 
+// Typography helper so we can switch variants without repeating font sizes everywhere.
 export function ThemedText({ variant = 'body', style, ...rest }: TextProps) {
   const { theme } = useTheme();
 

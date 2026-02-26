@@ -32,6 +32,7 @@ export function ThemeProvider({ children, initialMode }: ThemeProviderProps) {
       : 'light';
 
   const [currentMode, setCurrentMode] = React.useState<ThemeMode>(modeFromPropsOrSystem);
+  // When true we mirror the OS theme; once the user toggles we stop following it.
   const [useSystem, setUseSystem] = React.useState(true);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function ThemeProvider({ children, initialMode }: ThemeProviderProps) {
     setCurrentMode(systemScheme === 'dark' ? 'dark' : 'light');
   }, [systemScheme, useSystem]);
 
-  // Toggle lets the user explicitly override the system preference.
+  // Toggle lets the user explicitly override the system preference when they tap the chip.
   const toggleMode = useCallback(() => {
     setUseSystem(false);
     setCurrentMode(prev => (prev === 'light' ? 'dark' : 'light'));

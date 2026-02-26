@@ -13,7 +13,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Swipe'>;
 
 export function SwipeScreen({ navigation }: Props) {
   const { theme } = useTheme();
-  const { pokemon, loading, error, refresh } = useRandomPokemon();
+  // Local screen consumes the random Pokémon hook and only worries about UX.
+  const { pokemon, nextPokemon, loading, error, refresh } = useRandomPokemon();
+  // Cross-screen state (liked list and stats) lives in zustand.
   const liked = usePokemonStore(state => state.liked);
   const totalSwipes = usePokemonStore(state => state.totalSwipes);
   const addLiked = usePokemonStore(state => state.addLiked);
@@ -21,6 +23,7 @@ export function SwipeScreen({ navigation }: Props) {
 
   const likeCount = liked.length;
 
+  // User liked the current Pokémon: store it and immediately advance the stack.
   const handleLike = useCallback(() => {
     if (!pokemon) return;
     addLiked(pokemon);
@@ -28,6 +31,7 @@ export function SwipeScreen({ navigation }: Props) {
     void refresh();
   }, [addLiked, incrementSwipes, pokemon, refresh]);
 
+  // User disliked the current Pokémon: advance the stack but do not store it.
   const handleDislike = useCallback(() => {
     if (!pokemon) return;
     incrementSwipes();
@@ -58,6 +62,7 @@ export function SwipeScreen({ navigation }: Props) {
       <View style={styles.cardWrapper}>
         <PokemonCard
           pokemon={pokemon}
+          nextPokemon={nextPokemon}
           loading={loading}
           onLike={handleLike}
           onDislike={handleDislike}

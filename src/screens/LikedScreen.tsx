@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ThemedText, ThemedView } from '../components/Themed';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -9,9 +9,11 @@ import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Liked'>;
 
+// Gallery view that lets users review and prune their dream team.
 export function LikedScreen({ navigation }: Props) {
   const { theme } = useTheme();
   const liked = usePokemonStore(state => state.liked);
+  const removeLiked = usePokemonStore(state => state.removeLiked);
 
   const emptyMessage = useMemo(
     () =>
@@ -26,7 +28,7 @@ export function LikedScreen({ navigation }: Props) {
           variant="caption"
           style={styles.backLink}
           onPress={() => navigation.goBack()}>
-          ‹ Back
+          ‹
         </ThemedText>
         <ThemeToggle />
       </View>
@@ -50,13 +52,30 @@ export function LikedScreen({ navigation }: Props) {
             <View
               style={[
                 styles.card,
-                { backgroundColor: theme.cardBackground, borderColor: theme.border },
-              ]}>
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <Pressable
+                hitSlop={8}
+                onPress={() => removeLiked(item.id)}
+                style={styles.closeChip}
+              >
+                <ThemedText style={styles.closeChipText} variant="caption">
+                  ×
+                </ThemedText>
+              </Pressable>
+              {item.imageUrl ? (
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  resizeMode="contain"
+                  style={styles.cardImage}
+                />
+              ) : null}
               <ThemedText style={styles.cardName} variant="subtitle">
                 {item.name.toUpperCase()}
-              </ThemedText>
-              <ThemedText style={styles.cardTypes} variant="caption">
-                {item.types.join(' / ')}
               </ThemedText>
             </View>
           )}
@@ -79,7 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backLink: {
-    textDecorationLine: 'underline',
+    fontSize: 30,
   },
   title: {
     marginTop: 16,
@@ -98,16 +117,33 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     marginHorizontal: 4,
-    paddingVertical: 16,
-    paddingHorizontal: 10,
-    borderRadius: 18,
+    borderRadius: 24,
     borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+  },
+  cardImage: {
+    width: 90,
+    height: 90,
+    marginBottom: 8,
   },
   cardName: {
     fontSize: 14,
   },
-  cardTypes: {
-    marginTop: 4,
+  closeChip: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00000055',
+  },
+  closeChipText: {
+    color: '#FFFFFF',
   },
 });
 

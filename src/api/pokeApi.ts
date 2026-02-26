@@ -23,10 +23,11 @@ export type Pokemon = {
   abilities: string[];
 };
 
-// Limit to first generation for nicer card names and consistent artwork.
+// Keep the pool small and recognizable so users see classic Pokémon quickly.
 const FIRST_GEN_MAX_ID = 151;
 
 function mapPokemonResponse(json: any): Pokemon {
+  // Normalise just the bits of the API response we care about for the UI.
   const types: string[] = (json.types as PokemonType[]).map(t => t.type.name);
   const abilities: string[] = (json.abilities as PokemonAbility[]).map(a =>
     a.ability.name.replace(/-/g, ' '),
@@ -62,18 +63,26 @@ export function getRandomPokemonId() {
 }
 
 export function useRandomPokemon() {
-  const [pokemon, setPokemon] = useState<Pokemon | null>(null);
+  const [current, setCurrent] = useState<Pokemon | null>(null);
+  const [next, setNext] = useState<Pokemon | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch a fresh random Pokémon and update local state.
-  const refresh = useCallback(async () => {
+  // Helper that fetches a single random Pokémon from the configured range.
+  const loadOne = useCallback(async () => {
+    const id = getRandomPokemonId();
+    return fetchPokemonById(id);
+  }, []);
+
+  // Prime the stack with two Pokémon so the card component can show a next preview.
+  const prime = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const nextId = getRandomPokemonId();
-      const nextPokemon = await fetchPokemonById(nextId);
-      setPokemon(nextPokemon);
+      const first = await loadOne();
+      const second = await loadOne();
+      setCurrent(first);
+      setNext(second);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Something went wrong loading Pokémon.',
@@ -81,14 +90,38 @@ export function useRandomPokemon() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadOne]);
+
+  // Advance the stack: promote `next` to `current` and asynchronously fetch a new `next`.
+  const refresh = useCallback(async () => {
+    if (!next) {
+      await prime();
+      return;
+    }
+
+    setCurrent(next);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const fresh = await loadOne();
+      setNext(fresh);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Something went wrong loading Pokémon.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [loadOne, next, prime]);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    void prime();
+  }, [prime]);
 
   return {
-    pokemon,
+    pokemon: current,
+    nextPokemon: next,
     loading,
     error,
     refresh,

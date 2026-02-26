@@ -8,6 +8,7 @@ import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
+// Onboarding screen that mirrors the design brief and routes into the swipe experience.
 export function WelcomeScreen({ navigation }: Props) {
   const { theme } = useTheme();
 

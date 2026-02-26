@@ -6,6 +6,7 @@ import { ThemedText } from './Themed';
 export function ThemeToggle() {
   const { mode, toggleMode, theme } = useTheme();
 
+  // Copy switches based on current mode so the chip always describes the action.
   const label = useMemo(
     () => (mode === 'light' ? 'Dark mode' : 'Light mode'),
     [mode],

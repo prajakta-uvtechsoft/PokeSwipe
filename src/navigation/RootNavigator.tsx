@@ -5,6 +5,7 @@ import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { SwipeScreen } from '../screens/SwipeScreen';
 import { LikedScreen } from '../screens/LikedScreen';
 
+// Native stack keeps transitions smooth and feels close to a real mobile app shell.
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {

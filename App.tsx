@@ -26,6 +26,7 @@ function NavigationRoot() {
     [mode],
   );
 
+  // Bridge React Navigation's theme into our design tokens so headers, cards and backgrounds match.
   const navTheme = useMemo(
     () => ({
       ...(mode === 'dark' ? DarkTheme : DefaultTheme),
@@ -52,6 +53,7 @@ function NavigationRoot() {
 
 function App() {
   return (
+    // Root view needs to be wrapped so gesture handler and navigation can coordinate properly.
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
         <ThemeProvider>
